@@ -119,7 +119,7 @@ ansible-inventory -i aws_ec2.yml --list
 
 ## Ansible Variables and Facts
 
-**1. Variables Types**
+**1. Variable Types**
 - **Defined in playbooks:** `vars:`  
 - **Inventory variables:** `host_vars` / `group_vars`  
 - **Registered variables:** Capture module output
@@ -210,6 +210,162 @@ ansible-playbook site.yml --diff
 
 ---
 
+## Ansible Modules and Plugins
+
+**1. Modules**
+- **Core modules:** `apt`, `yum`, `copy`, `file`, `service`, `command`, `shell`, `user`
+- Example:
+```yaml
+- name: Ensure nginx is installed
+  ansible.builtin.apt:
+    name: nginx
+    state: latest
+```
+
+**2. Plugins**
+- **Connection plugins:** `ssh`, `paramiko`, `local`
+- **Lookup plugins:** Access external data (`file`, `env`, `pipe`)
+- **Filter plugins:** Transform data in templates
+
+**3. Use Case:** Automating common system tasks across multiple servers.
+
+---
+
+## Ansible Handlers, Roles, and Collections
+
+**1. Handlers**
+- Trigger actions on state changes.
+```yaml
+tasks:
+  - name: Update config
+    ansible.builtin.copy:
+      src: nginx.conf
+      dest: /etc/nginx/nginx.conf
+    notify: "Restart nginx"
+```
+
+**2. Roles**
+- Modular structure to organize tasks.
+```
+myrole/
+├── tasks/
+│   └── main.yml
+├── handlers/
+│   └── main.yml
+├── defaults/
+│   └── main.yml
+├── vars/
+│   └── main.yml
+├── templates/
+│   └── config.j2
+├── files/
+├── meta/
+│   └── main.yml
+```
+
+- Using roles in playbook:
+```yaml
+- hosts: webservers
+  roles:
+    - myrole
+```
+
+**3. Collections**
+- Packages of modules, plugins, and roles.  
+- Example: `ansible-galaxy collection install community.general`
+
+---
+
+## Ansible Galaxy & Role Creation
+
+**1. Creating a New Role**
+```bash
+ansible-galaxy role init myrole
+```
+
+**2. Arguments for `ansible-galaxy role init`**
+- `--role-name <name>`: Specify role name.
+- `--offline`: Generate role without network.
+- `--force`: Overwrite existing role.
+
+Example:
+```bash
+ansible-galaxy role init webserver --offline
+```
+
+**3. Installing Roles from Galaxy**
+```bash
+ansible-galaxy install geerlingguy.nginx
+```
+- Custom path: `-p ./roles`
+
+**4. Using Roles in Playbooks**
+```yaml
+- hosts: webservers
+  roles:
+    - myrole
+    - geerlingguy.nginx
+```
+
+**5. Best Practices for Roles**
+- One role per logical unit (webserver, database, monitoring).
+- Use **defaults** for safe defaults.
+- Use **vars** for mandatory or sensitive vars.
+- Use **handlers** for service restarts.
+- Keep roles **reusable and shareable** via Ansible Galaxy.
+
+---
+
+## Common Ansible Commands
+
+**1. Ping all hosts:**
+```bash
+ansible all -m ping
+```
+
+**2. Check connectivity to a group:**
+```bash
+ansible webservers -m ping
+```
+
+**3. Run ad-hoc command:**
+```bash
+ansible dbservers -a "uptime"
+```
+
+**4. Copy a file:**
+```bash
+ansible webservers -m copy -a "src=/local/file dest=/remote/file"
+```
+
+**5. Check Ansible configuration:**
+```bash
+ansible --version
+ansible-config list
+```
+
+**6. Run playbook:**
+```bash
+ansible-playbook site.yml
+```
+
+**7. List inventory hosts:**
+```bash
+ansible-inventory --list -i hosts
+```
+
+**8. Check syntax of a playbook:**
+```bash
+ansible-playbook site.yml --syntax-check
+```
+
+**9. Dry run (check mode):**
+```bash
+ansible-playbook site.yml --check
+```
+
+---
+
 ## Most Used `ansible.builtin` Modules
 
 **1. Package Management:**
@@ -226,7 +382,7 @@ ansible-playbook site.yml --diff
 
 **4. Commands & Scripts:**
 - `ansible.builtin.command` - Run a command on remote host
-- `ansible.builtin.shell` - Run shell commands (with pipe, redirection)
+- `ansible.builtin.shell` - Run shell commands
 - `ansible.builtin.script` - Upload and execute a local script
 
 **5. User & Group Management:**
