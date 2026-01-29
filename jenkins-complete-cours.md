@@ -105,6 +105,12 @@ pipeline {
         nodejs 'NodeJS'
     }
 
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['staging', 'production'], description: 'Target environment')
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Git branch to deploy')
+        booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run tests after deploy?')
+    }
+
     environment {
         APP_NAME = 'my-app'
     }
