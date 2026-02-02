@@ -6,6 +6,7 @@
 - [Storage & Content Delivery](#storage--content-delivery)
 - [Databases & Caching](#databases--caching)
 - [Analytics & Data Integration](#analytics--data-integration)
+- [Networking & Connectivity](#Networking--Connectivity)
 - [Machine Learning & AI](#machine-learning--ai)
 - [Management, Security & Governance](#management-security--governance)
 - [Communication & App Integration](#communication--app-integration)
@@ -662,6 +663,238 @@
 - **vs CloudWatch Logs:** OpenSearch for complex queries and visualization; CloudWatch for basic monitoring
 - **vs Athena:** OpenSearch for search and real-time; Athena for SQL on S3
 - **vs Redshift:** OpenSearch for search/logs; Redshift for structured analytics
+
+---
+
+## Networking & Connectivity
+
+### VPC (Virtual Private Cloud)
+**Definition:** A logically isolated virtual network where you launch AWS resources securely.
+
+**Use Cases:**
+- Isolate environments (prod/dev/test)
+- Secure application tiers (web/app/db)
+- Control traffic with routing and firewalls
+- Hybrid cloud connectivity
+
+**Key Features:**
+- Custom IP ranges (CIDR blocks)
+- Subnets across multiple AZs
+- Route tables
+- Security Groups & NACLs
+- Internet/NAT gateways
+- Peering and private connectivity
+
+**Comparison:**
+- **vs Traditional Data Center:** Same concepts (subnets, routers, firewalls) but fully managed and software-defined
+- Foundation of almost all AWS services
+
+---
+
+### Subnets
+**Definition:** A subdivision of a VPC IP range deployed inside a single Availability Zone.
+
+**Types:**
+- **Public Subnet:** Has route to Internet Gateway (IGW)
+- **Private Subnet:** No direct internet access
+- **Isolated Subnet:** No internet, no NAT (internal only)
+
+**Use Cases:**
+- Public: Load balancers, bastion hosts
+- Private: EC2, ECS, app servers
+- Isolated: Databases, internal services
+
+**Best Practice:**
+- Multi-AZ design for high availability
+
+---
+
+### Internet Gateway (IGW)
+**Definition:** Enables internet connectivity between your VPC and the public internet.
+
+**Use Cases:**
+- Public web servers
+- Public APIs
+- Outbound/inbound internet access
+
+**Key Notes:**
+- Required for public subnets
+- One IGW per VPC
+- Works with public IPs or Elastic IPs
+
+---
+
+### NAT Gateway
+**Definition:** Allows private subnet resources to access the internet outbound only.
+
+**Use Cases:**
+- EC2 pulling updates/patches
+- Containers downloading images
+- Private workloads calling external APIs
+
+**Comparison:**
+- **vs NAT Instance:** NAT Gateway is managed and scalable; NAT Instance requires maintenance
+- Recommended: NAT Gateway
+
+**Best Practice:**
+- Deploy one per AZ to avoid single point of failure
+
+---
+
+### Route Tables
+**Definition:** Control how traffic is routed inside and outside the VPC.
+
+**Use Cases:**
+- Direct traffic to IGW, NAT, peering, VPN
+- Control subnet connectivity
+- Segment environments
+
+**Key Concepts:**
+- Each subnet must be associated with a route table
+- Longest prefix match rule
+
+---
+
+### Security Groups
+**Definition:** Virtual firewall attached to resources (instance level).
+
+**Use Cases:**
+- Allow only HTTP/HTTPS to web servers
+- Restrict database access to app tier
+- Control inbound/outbound traffic
+
+**Key Features:**
+- Stateful
+- Allow rules only
+- Default deny
+
+**Comparison:**
+- **vs NACL:** SG is instance-level + stateful; NACL is subnet-level + stateless
+
+---
+
+### Network ACL (NACL)
+**Definition:** Subnet-level firewall controlling traffic entering and leaving subnets.
+
+**Use Cases:**
+- Extra security layer
+- Blocking specific IP ranges
+- Compliance requirements
+
+**Key Features:**
+- Stateless
+- Allow + Deny rules
+- Evaluated in order
+
+**Comparison:**
+- **vs Security Groups:** NACLs are broader and stateless; SGs are simpler and recommended for most use cases
+
+---
+
+### VPC Peering
+**Definition:** Connects two VPCs privately using AWS backbone network.
+
+**Use Cases:**
+- Share services between VPCs
+- Multi-account architectures
+- Separate environments communicating
+
+**Key Notes:**
+- No transitive routing
+- Works across regions
+
+---
+
+### Transit Gateway
+**Definition:** Central hub to connect multiple VPCs and on-prem networks.
+
+**Use Cases:**
+- Large enterprises
+- Hub-and-spoke network architecture
+- Many VPCs + VPN/Direct Connect
+
+**Comparison:**
+- **vs Peering:** Transit Gateway scales better for many VPCs
+- Recommended for >5–10 VPCs
+
+---
+
+### VPN (Site-to-Site VPN)
+**Definition:** Secure IPsec tunnel between on-premises network and AWS.
+
+**Use Cases:**
+- Hybrid cloud connectivity
+- Secure branch office access
+- Disaster recovery
+
+**Comparison:**
+- **vs Direct Connect:** VPN is cheaper, encrypted over internet; Direct Connect is dedicated private link
+
+---
+
+### Direct Connect
+**Definition:** Dedicated private network connection from on-premises to AWS.
+
+**Use Cases:**
+- High bandwidth
+- Low latency
+- Stable enterprise connectivity
+- Large data transfers
+
+**Benefits:**
+- More reliable than VPN
+- Lower latency
+- Predictable performance
+
+---
+
+### Route 53
+**Definition:** Scalable DNS and domain management service.
+
+**Use Cases:**
+- Domain registration
+- DNS routing
+- Health checks
+- Global traffic management
+
+**Routing Policies:**
+- Simple
+- Weighted
+- Latency-based
+- Failover
+- Geolocation
+
+**Comparison:**
+- **vs Traditional DNS:** Integrated with AWS health checks and routing logic
+
+---
+
+### CloudFront
+**Definition:** Global Content Delivery Network (CDN) for caching content closer to users.
+
+**Use Cases:**
+- Static website acceleration
+- Video streaming
+- API acceleration
+- DDoS protection with Shield
+
+**Benefits:**
+- Lower latency worldwide
+- Reduced origin load
+- Integrated with S3, ALB, API Gateway
+
+---
+
+### PrivateLink
+**Definition:** Private access to AWS services or SaaS without using public internet.
+
+**Use Cases:**
+- Secure service-to-service communication
+- Access AWS services privately
+- SaaS provider integration
+
+**Comparison:**
+- **vs Peering:** PrivateLink is service-level access; Peering is full VPC access
 
 ---
 
